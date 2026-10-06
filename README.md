@@ -60,11 +60,6 @@ The submission-facing transcription of the protocol fixed before target outcomes
 
 That original conservative implementation is retained unchanged because it underpins the confirmatory prospective analysis: GREEN used direct center reuse, AMBER used at most 116 tuning runs, and RED used 1,250 runs. Across the 24 targets it used 6,185 tuning runs and is the basis of the original 21/24 policy-versus-center result. See `protocol/ORIGINAL_PROSPECTIVE_VALIDATION_NOTE.md`.
 
-Run:
-`python scripts/verify_prospective_matrices_exact.py`
-
-This independently checks all 24 archived SHA-256 identities and all 24 deterministic NEH values.
-
 ## Recommended risk-guided staged operational policy
 
 The manuscript's final practitioner recommendation is the lower-cost staged implementation:
