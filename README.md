@@ -108,6 +108,8 @@ The verifier requires the canonical historical result to reconstruct as 595/840.
 
 S1 includes the retained 50-job processing-time matrices and executable GA response-surface workflow, the exact 24-target prospective matrices, the original prespecified prospective validation protocol, and the final recommended staged operational policy with its matched-budget validation workflow. Supplementary S2 contains the complete manuscript-facing result tables and raw validation evidence, including the canonical Ta100x20 reconstruction, the original 24-target prospective validation results, and the 24-target staged-policy-versus-blind comparison.
 
+The supplied reference implementation provides seed-controlled replay and verification; however, identical nominal seeds do not necessarily guarantee bitwise-identical GA trajectories or final outcomes across different compiler, standard-library, or numerical-library environments. Small implementation-dependent differences in random-number mapping, operation ordering, or tie handling may alter individual stochastic runs. Reproduced results should therefore be expected to show consistency at the aggregate experimental level rather than exact run-by-run identity across software environments.
+
 The portable C++ sources are reference implementations of the documented GA logic and are not claimed to be byte-identical copies of every historical production source. See `SOURCE_LINEAGE.md`.
 
 ## Main files
