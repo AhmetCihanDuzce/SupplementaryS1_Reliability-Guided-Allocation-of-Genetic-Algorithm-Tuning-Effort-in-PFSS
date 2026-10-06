@@ -1,0 +1,9 @@
+Processing times were regenerated from the published Taillard (1993) time seeds
+using the original Park-Miller generator (Uniform integers 1..99).
+Reference: E. Taillard, Benchmarks for basic scheduling problems,
+European Journal of Operational Research 64 (1993) 278-285.
+CSV format: one job per row; machine processing times across columns.
+Verification: Ta001 published first-job vector and all 30 previously retained
+50-job matrices match exactly.
+Standard Taillard groups included here: 20x5/10/20, 50x5/10/20,
+100x5/10/20, 200x10/20. The original benchmark has no 200x5 group.
