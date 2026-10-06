@@ -1,0 +1,60 @@
+{
+  "experiment_id": "GaStructure_50Job_CommonEngine_2026-08-29",
+  "description": "Exact 50-job main GA surface: 3 groups x 10 instances x 125 configurations x 10 reps = 37,500 GA runs.",
+  "engine": {
+    "representation": "permutation",
+    "initialization": "random Fisher-Yates",
+    "selection": "binary tournament",
+    "crossover": "fixed-cardinality position-preserving OBX, k=floor(n/2)",
+    "mutation": "insertion/shift",
+    "elitism": 1,
+    "replacement": "generational",
+    "local_search": false,
+    "rng": "std::mt19937_64"
+  },
+  "grid": {
+    "pop_mult": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "pc": [
+      0.85,
+      0.8875,
+      0.925,
+      0.9625,
+      1.0
+    ],
+    "pm": [
+      0.025,
+      0.05,
+      0.075,
+      0.1,
+      0.125
+    ],
+    "replications": 10
+  },
+  "groups": {
+    "Ta50x5": {
+      "n": 50,
+      "m": 5,
+      "G": 2000,
+      "seed_base": 2250000201
+    },
+    "Ta50x10": {
+      "n": 50,
+      "m": 10,
+      "G": 9000,
+      "seed_base": 2260000201
+    },
+    "Ta50x20": {
+      "n": 50,
+      "m": 20,
+      "G": 9000,
+      "seed_base": 2270000201
+    }
+  },
+  "seed_formula": "seed_base + instance*100000 + rep*1009; same replication seed is reused across all parameter configurations (CRN)"
+}

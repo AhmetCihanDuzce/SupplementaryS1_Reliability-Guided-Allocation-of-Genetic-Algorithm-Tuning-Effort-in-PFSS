@@ -1,0 +1,4 @@
+risk,targets,total_runs,min_runs,max_runs
+AMBER,12,1437,92,137
+GREEN,8,370,40,50
+RED,4,1960,490,490

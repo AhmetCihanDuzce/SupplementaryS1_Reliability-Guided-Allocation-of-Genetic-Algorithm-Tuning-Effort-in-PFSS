@@ -1,0 +1,11 @@
+anchor,pop_mult,pc,pm,safe_count,comparisons,safe_rate_pct,G,mean_signed_excess_pp,mean_clipped_regret_pp,evidence_status
+20x5,4,1.0000,0.125,749,840,89.17,9000,0.0111,0.0860,complete comparison-level evidence is distributed in Supplementary S2
+20x10,5,0.8500,0.100,775,840,92.26,8000,-0.0363,0.0642,complete comparison-level evidence is distributed in Supplementary S2
+20x20,5,0.8875,0.075,720,840,85.71,8000,0.0030,0.1004,complete comparison-level evidence is distributed in Supplementary S2
+50x5,2,1.0000,0.125,824,840,98.10,2000,-0.0161,0.0240,independent fresh-validation evidence is distributed in Supplementary S2
+50x10,3,0.8500,0.100,656,840,78.10,9000,-0.0010,0.1264,independent fresh-validation evidence is distributed in Supplementary S2
+50x20,5,0.9625,0.125,613,840,72.98,9000,0.0624,0.1368,independent fresh-validation evidence is distributed in Supplementary S2
+100x5,2,0.8500,0.075,837,840,99.64,9000,0.0200,0.0283,complete comparison-level evidence is distributed in Supplementary S2
+100x10,3,0.8500,0.075,814,840,96.90,9000,0.0381,0.0667,complete comparison-level evidence is distributed in Supplementary S2
+100x20,2,0.8875,0.050,595,840,70.83,17000,0.1477,0.1855,canonical 595/840 comparison-level reconstruction complete in Supplementary S2
+OVERALL,,,,6583,7560,87.08,,0.0254,0.0909,nine-anchor manuscript summary; detailed evidence is distributed in Supplementary S2

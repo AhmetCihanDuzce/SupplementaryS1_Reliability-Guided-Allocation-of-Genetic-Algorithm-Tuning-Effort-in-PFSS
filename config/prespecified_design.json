@@ -1,0 +1,43 @@
+{
+  "study": "When Can Genetic Algorithm Parameters Be Reused in Permutation Flow Shop Scheduling? A Risk-Calibrated Prospective Validation Framework",
+  "scope": "Nine Taillard historical anchors used by the prospective GREEN/AMBER/RED decision rule",
+  "configuration_grid": {
+    "population_multiplier": [1,2,3,4,5],
+    "pc": [0.85,0.8875,0.925,0.9625,1.0],
+    "pm": [0.025,0.05,0.075,0.1,0.125],
+    "replications_per_configuration": 10,
+    "configurations_per_instance": 125
+  },
+  "ga_architecture": {
+    "initialization": "random permutations (Fisher-Yates)",
+    "selection": "binary tournament",
+    "crossover": "fixed-cardinality position-preserving OBX; k=floor(n/2)",
+    "mutation": "insertion/shift",
+    "elitism": 1,
+    "replacement": "generational",
+    "local_search": false,
+    "rng": "std::mt19937_64"
+  },
+  "anchors": [
+    {"group":"Ta20x5","n":20,"m":5,"pop_mult":4,"pc":1.0,"pm":0.125,"G":9000,"safe_count":749,"comparisons":840},
+    {"group":"Ta20x10","n":20,"m":10,"pop_mult":5,"pc":0.85,"pm":0.10,"G":8000,"safe_count":775,"comparisons":840},
+    {"group":"Ta20x20","n":20,"m":20,"pop_mult":5,"pc":0.8875,"pm":0.075,"G":8000,"safe_count":720,"comparisons":840},
+    {"group":"Ta50x5","n":50,"m":5,"pop_mult":2,"pc":1.0,"pm":0.125,"G":2000,"safe_count":824,"comparisons":840},
+    {"group":"Ta50x10","n":50,"m":10,"pop_mult":3,"pc":0.85,"pm":0.10,"G":9000,"safe_count":656,"comparisons":840},
+    {"group":"Ta50x20","n":50,"m":20,"pop_mult":5,"pc":0.9625,"pm":0.125,"G":9000,"safe_count":613,"comparisons":840},
+    {"group":"Ta100x5","n":100,"m":5,"pop_mult":2,"pc":0.85,"pm":0.075,"G":9000,"safe_count":837,"comparisons":840},
+    {"group":"Ta100x10","n":100,"m":10,"pop_mult":3,"pc":0.85,"pm":0.075,"G":9000,"safe_count":814,"comparisons":840},
+    {"group":"Ta100x20","n":100,"m":20,"pop_mult":2,"pc":0.8875,"pm":0.05,"G":17000,"safe_count":595,"comparisons":840}
+  ],
+  "historical_summary": {"safe_count":6583,"comparisons":7560,"safe_rate_pct":87.08},
+  "transfer_protocol": {
+    "calibration_instances_per_split": 3,
+    "all_splits_per_group": 120,
+    "holdouts_per_split": 7,
+    "holdout_comparisons_per_group": 840,
+    "admissible_region_pp": 0.25,
+    "selection": "robust-minimax within +0.25 pp of the best mean calibration regret",
+    "near_optimal_rule": "signed_excess_pp <= 0.25",
+    "validation": "independent fresh seeds; transfer and target empirical reference paired by common random numbers"
+  }
+}

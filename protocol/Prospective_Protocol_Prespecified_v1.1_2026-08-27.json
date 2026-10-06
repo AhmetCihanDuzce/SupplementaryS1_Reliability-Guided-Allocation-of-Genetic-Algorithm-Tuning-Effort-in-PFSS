@@ -1,0 +1,662 @@
+{
+  "name": "Prospective_GREEN_AMBER_RED_OffGrid_Validation_v1.1",
+  "status": "PRESPECIFIED_BEFORE_ANY_PROSPECTIVE_GA_OUTCOME",
+  "prespecified_on": "2026-08-27",
+  "purpose": "Prospective end-to-end validation of the practitioner decision system on 24 unseen off-grid PFSP sizes.",
+  "panel": {
+    "n_values": [
+      30,
+      40,
+      60,
+      70,
+      80,
+      90
+    ],
+    "m_values": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "targets": 24,
+    "targets_per_size_combination": 1,
+    "matrix_distribution": "iid discrete Uniform{1,...,99}",
+    "matrix_rng": "NumPy PCG64DXSM",
+    "matrix_seed_formula": "2026082701 + n*1000 + m",
+    "selection": "exactly the first matrix from the prespecified size-specific RNG seed; no candidate screening and no GA-outcome selection"
+  },
+  "decision_rule": {
+    "historical_evidence": "nine Taillard group 3->7 fresh near-optimal counts: 749,775,720,824,656,613,837,814,595 out of 840 in (20,50,100)x(5,10,20) order",
+    "interpolation": "bilinear interpolation in (log n, log m) of exact historical safe-transfer proportions",
+    "GREEN": "interpolated historical safe-transfer proportion >= 0.90; reuse interpolated/snap-to-grid center configuration without tuning",
+    "AMBER": "0.75 <= interpolated historical safe-transfer proportion < 0.90; local sequential DoE around center configuration",
+    "RED": "interpolated historical safe-transfer proportion < 0.75; broad/full 5x5x5 retuning",
+    "important": "the earlier predicted response-surface sharpness and structural descriptors are recorded as secondary explanatory variables but DO NOT alter GREEN/AMBER/RED action because H3 was not externally supported."
+  },
+  "center_parameter_rule": {
+    "anchors": "nine previously prespecified transferred configurations",
+    "interpolation": "bilinear in (log n, log m), parameter by parameter",
+    "snap_levels": {
+      "pop_mult": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "pc": [
+        0.85,
+        0.8875,
+        0.925,
+        0.9625,
+        1.0
+      ],
+      "pm": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125
+      ]
+    },
+    "snap_tie_break": "lower numeric grid level"
+  },
+  "G_rule": {
+    "anchors": {
+      "20x5": 9000,
+      "20x10": 8000,
+      "20x20": 8000,
+      "50x5": 2000,
+      "50x10": 9000,
+      "50x20": 9000,
+      "100x5": 9000,
+      "100x10": 9000,
+      "100x20": 17000
+    },
+    "interpolation": "bilinear in (log n, log m)",
+    "rounding": "nearest 1000 generations; exact .5 tie uses Python round-to-even but no prespecified configuration is an exact .5 tie"
+  },
+  "GA": {
+    "architecture": "same the prespecified GA: random initialization; binary tournament; fixed-cardinality OBX k=floor(n/2); insertion mutation; elitism=1; generational replacement; no LS",
+    "full_grid": {
+      "pop_mult": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "pc": [
+        0.85,
+        0.8875,
+        0.925,
+        0.9625,
+        1.0
+      ],
+      "pm": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125
+      ]
+    }
+  },
+  "AMBER_policy": {
+    "local_neighborhood": "one grid step below/center/one above for each of pop_mult, pc, pm, clipped at boundaries; Cartesian product, at most 27 configurations",
+    "stage1": "R=3 on every local configuration; rank by mean Cmax ascending, tie by pop_mult then pc then pm ascending",
+    "promotion": "top 5 local configurations, or all configurations if fewer than 5, promoted to total R=10 by adding reps 4..10",
+    "final_selection": "minimum 10-rep mean Cmax among promoted configurations; same deterministic parameter tie-break"
+  },
+  "RED_policy": {
+    "full_retuning": "125 configurations x R=10 using policy-tuning seed family; select minimum 10-rep mean Cmax with deterministic parameter tie-break"
+  },
+  "seed_families": {
+    "policy_tuning_base": 2800000201,
+    "hidden_benchmark_base": 2810000201,
+    "fresh_validation_base": 2820000201,
+    "formula": "base + target_index*100000 + rep*1009; same rep seed across compared configurations within a target (CRN)"
+  },
+  "hidden_ground_truth": {
+    "procedure": "after policy action and selected configuration are prespecified for a target, run an independent hidden full 125-configuration x R=10 benchmark surface using hidden_benchmark seeds and select the empirical oracle by minimum mean Cmax",
+    "leakage_guard": "hidden surface is not visible to GREEN/AMBER/RED policy selection"
+  },
+  "fresh_validation": {
+    "R": 10,
+    "CRN": "same fresh seed for policy-selected configuration, hidden empirical oracle, and optional shadow direct-center configuration",
+    "signed_excess_pp": "100*(mean Cmax_policy - mean Cmax_hidden_oracle)/NEH",
+    "safe": "signed_excess_pp <= 0.25",
+    "shadow_direct_center": "evaluate center configuration on fresh seeds for all AMBER/RED targets for decision-value diagnostics; does not alter action"
+  },
+  "primary_endpoints": {
+    "primary_efficacy_regret": "Across all 24 targets, compare policy-selected vs shadow direct-center fresh clipped regret at target level with a one-sided paired Wilcoxon signed-rank test (alternative: policy lower), alpha=0.05.",
+    "primary_efficacy_failures": "Across all 24 targets, compare safe/fail status of policy vs shadow direct-center with exact paired McNemar/binomial discordant-pair test (alternative: policy reduces failures), alpha=0.05. Report Holm-adjusted p-values across the two co-primary efficacy tests.",
+    "overall_policy_safety": "Report safe count/rate (SE<=0.25 pp), exact/Wilson 95% CI, mean signed excess and mean clipped regret. No post-outcome pass/fail threshold will be introduced.",
+    "GREEN_precision": "Report safe count/rate, false-GREEN count, and exact/Wilson 95% CI for the 8 preassigned GREEN targets. No hard 8/8 requirement.",
+    "AMBER_performance": "Report safe count/rate, exact/Wilson 95% CI, and rescue rate among shadow direct-center failures for the 12 preassigned AMBER targets. No hard 11/12 requirement.",
+    "RED_diagnostic": "Report shadow direct-center failures, selected-config regret and cost for 4 preassigned RED targets; no separate pass threshold.",
+    "cost": "Report practitioner policy-tuning GA runs and ratio versus 24*1250 full-grid runs. Hidden benchmark and final fresh-validation runs are scientific evaluation cost and excluded from practitioner tuning cost."
+  },
+  "secondary_endpoints": [
+    "overall near-optimal rate and 95% CI",
+    "mean signed excess pp",
+    "mean clipped regret pp",
+    "GREEN false-safe count and precision CI",
+    "AMBER rescue rate versus shadow direct center",
+    "predicted the earlier surface sharpness vs realized hidden-surface sharpness",
+    "V0.25",
+    "policy cost by action",
+    "exploratory practical-threshold sensitivity analyses, if any, must be explicitly labeled exploratory and may not replace the prespecified co-primary tests"
+  ],
+  "guardrails": [
+    "No thresholds, interpolation rules, parameter centers, G values, seed families, action labels, AMBER promotion rule, safe definition, or co-primary efficacy tests may be changed after any prospective validation GA outcome is observed.",
+    "One target per n×m size combination means conclusions are panel-level; no per-size-combination reliability claim will be made."
+  ],
+  "targets": [
+    {
+      "target_index": 1,
+      "n": 30,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.931176224644,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 1.0,
+        "pm": 0.125
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.1149859013004795,
+        "pc": 1.0,
+        "pm": 0.125
+      },
+      "G_raw_interpolation": 5902.450654551679,
+      "G": 6000,
+      "matrix_seed": 2026112706,
+      "target_id": "T01_30x5"
+    },
+    {
+      "target_index": 2,
+      "n": 30,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.859930548961,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 4,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 4.1149859013004795,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "G_raw_interpolation": 8442.50704934976,
+      "G": 8000,
+      "matrix_seed": 2026112711,
+      "target_id": "T02_30x10"
+    },
+    {
+      "target_index": 3,
+      "n": 30,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.825327290416,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 5,
+        "pc": 0.8875,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 4.632685961649231,
+        "pc": 0.8913498460401215,
+        "pm": 0.09831843899068987
+      },
+      "G_raw_interpolation": 8442.50704934976,
+      "G": 8000,
+      "matrix_seed": 2026112716,
+      "target_id": "T03_30x15"
+    },
+    {
+      "target_index": 4,
+      "n": 30,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.800775887761,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 5,
+        "pc": 0.925,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 5.0,
+        "pc": 0.920688028701232,
+        "pm": 0.097125352467488
+      },
+      "G_raw_interpolation": 8442.50704934976,
+      "G": 8000,
+      "matrix_seed": 2026112721,
+      "target_id": "T04_30x20"
+    },
+    {
+      "target_index": 5,
+      "n": 40,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.959208702146,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 1.0,
+        "pm": 0.125
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.48705840526794,
+        "pc": 1.0,
+        "pm": 0.125
+      },
+      "G_raw_interpolation": 3704.704418437789,
+      "G": 4000,
+      "matrix_seed": 2026122706,
+      "target_id": "T05_40x5"
+    },
+    {
+      "target_index": 6,
+      "n": 40,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.815452351326,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.4870584052679394,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "G_raw_interpolation": 8756.47079736603,
+      "G": 9000,
+      "matrix_seed": 2026122711,
+      "target_id": "T06_40x10"
+    },
+    {
+      "target_index": 7,
+      "n": 40,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.783472764483,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 4,
+        "pc": 0.8875,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 4.37207250396746,
+        "pc": 0.9051241224782753,
+        "pm": 0.1075012899494591
+      },
+      "G_raw_interpolation": 8756.47079736603,
+      "G": 9000,
+      "matrix_seed": 2026122716,
+      "target_id": "T07_40x15"
+    },
+    {
+      "target_index": 8,
+      "n": 40,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.760782886526,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 5,
+        "pc": 0.9625,
+        "pm": 0.125
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 5.0,
+        "pc": 0.9442353098024523,
+        "pm": 0.1128235398683015
+      },
+      "G_raw_interpolation": 8756.47079736603,
+      "G": 9000,
+      "matrix_seed": 2026122721,
+      "target_id": "T08_40x20"
+    },
+    {
+      "target_index": 9,
+      "n": 60,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.985023151519,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 0.9625,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.0,
+        "pc": 0.9605448391249309,
+        "pm": 0.11184827970831032
+      },
+      "G_raw_interpolation": 3841.2408408365536,
+      "G": 4000,
+      "matrix_seed": 2026142706,
+      "target_id": "T09_60x5"
+    },
+    {
+      "target_index": 10,
+      "n": 60,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.830427900145,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.0,
+        "pc": 0.85,
+        "pm": 0.09342413985415517
+      },
+      "G_raw_interpolation": 9000.0,
+      "G": 9000,
+      "matrix_seed": 2026142711,
+      "target_id": "T10_60x10"
+    },
+    {
+      "target_index": 11,
+      "n": 60,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.768244954952,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 4,
+        "pc": 0.8875,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.7083292100055942,
+        "pc": 0.904268386545212,
+        "pm": 0.10035493918157211
+      },
+      "G_raw_interpolation": 10230.922110497913,
+      "G": 10000,
+      "matrix_seed": 2026142716,
+      "target_id": "T11_60x15"
+    },
+    {
+      "target_index": 12,
+      "n": 60,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.724125453208,
+      "action": "RED",
+      "center_config": {
+        "pop_mult": 4,
+        "pc": 0.925,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 4.21089678249862,
+        "pc": 0.9427724195624655,
+        "pm": 0.1052724195624655
+      },
+      "G_raw_interpolation": 11104.275246670346,
+      "G": 11000,
+      "matrix_seed": 2026142721,
+      "target_id": "T12_60x20"
+    },
+    {
+      "target_index": 13,
+      "n": 70,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.988464938992,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 0.925,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.0,
+        "pc": 0.9271859759244637,
+        "pm": 0.1007286586414879
+      },
+      "G_raw_interpolation": 5397.987790191695,
+      "G": 5000,
+      "matrix_seed": 2026152706,
+      "target_id": "T13_70x5"
+    },
+    {
+      "target_index": 14,
+      "n": 70,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.872258855587,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.85,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.0,
+        "pc": 0.8500000000000001,
+        "pm": 0.08786432932074395
+      },
+      "G_raw_interpolation": 9000.0,
+      "G": 9000,
+      "matrix_seed": 2026152711,
+      "target_id": "T14_70x10"
+    },
+    {
+      "target_index": 15,
+      "n": 70,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.782818700943,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.8875,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.3180555292263882,
+        "pc": 0.8945115445257319,
+        "pm": 0.0882905673018408
+      },
+      "G_raw_interpolation": 11271.651925909131,
+      "G": 11000,
+      "matrix_seed": 2026152716,
+      "target_id": "T15_70x15"
+    },
+    {
+      "target_index": 16,
+      "n": 70,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.719359901323,
+      "action": "RED",
+      "center_config": {
+        "pop_mult": 4,
+        "pc": 0.925,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.543719518489274,
+        "pc": 0.9260929879622319,
+        "pm": 0.08859298796223186
+      },
+      "G_raw_interpolation": 12883.414617361937,
+      "G": 13000,
+      "matrix_seed": 2026152721,
+      "target_id": "T16_70x20"
+    },
+    {
+      "target_index": 17,
+      "n": 80,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.991446350912,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 0.8875,
+        "pm": 0.1
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.0,
+        "pc": 0.8982892142331045,
+        "pm": 0.09109640474436817
+      },
+      "G_raw_interpolation": 6746.503335788457,
+      "G": 7000,
+      "matrix_seed": 2026162706,
+      "target_id": "T17_80x5"
+    },
+    {
+      "target_index": 18,
+      "n": 80,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.90849447739,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.85,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.0,
+        "pc": 0.85,
+        "pm": 0.08304820237218408
+      },
+      "G_raw_interpolation": 9000.0,
+      "G": 9000,
+      "matrix_seed": 2026162711,
+      "target_id": "T18_80x10"
+    },
+    {
+      "target_index": 19,
+      "n": 80,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.795443053946,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.8875,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.979985089591973,
+        "pc": 0.8860597835348716,
+        "pm": 0.07783993302604067
+      },
+      "G_raw_interpolation": 12173.173098267573,
+      "G": 12000,
+      "matrix_seed": 2026162716,
+      "target_id": "T19_80x15"
+    },
+    {
+      "target_index": 20,
+      "n": 80,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.715231792509,
+      "action": "RED",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.925,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.9657842846620897,
+        "pc": 0.9116446071165523,
+        "pm": 0.07414460711655224
+      },
+      "G_raw_interpolation": 14424.575240901093,
+      "G": 14000,
+      "matrix_seed": 2026162721,
+      "target_id": "T20_80x20"
+    },
+    {
+      "target_index": 21,
+      "n": 90,
+      "m": 5,
+      "historical_safe_rate_interpolated": 0.994076142601,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 0.8875,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.0,
+        "pc": 0.8728004640167576,
+        "pm": 0.08260015467225253
+      },
+      "G_raw_interpolation": 7935.978345884646,
+      "G": 8000,
+      "matrix_seed": 2026172706,
+      "target_id": "T21_90x5"
+    },
+    {
+      "target_index": 22,
+      "n": 90,
+      "m": 10,
+      "historical_safe_rate_interpolated": 0.940456560995,
+      "action": "GREEN",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.85,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 3.0,
+        "pc": 0.85,
+        "pm": 0.07880007733612626
+      },
+      "G_raw_interpolation": 9000.0,
+      "G": 9000,
+      "matrix_seed": 2026172711,
+      "target_id": "T22_90x10"
+    },
+    {
+      "target_index": 23,
+      "n": 90,
+      "m": 15,
+      "historical_safe_rate_interpolated": 0.806578522473,
+      "action": "AMBER",
+      "center_config": {
+        "pop_mult": 3,
+        "pc": 0.8875,
+        "pm": 0.075
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.681785828255749,
+        "pc": 0.878604802001466,
+        "pm": 0.06862182030104579
+      },
+      "G_raw_interpolation": 12968.371128497503,
+      "G": 13000,
+      "matrix_seed": 2026172716,
+      "target_id": "T23_90x15"
+    },
+    {
+      "target_index": 24,
+      "n": 90,
+      "m": 20,
+      "historical_safe_rate_interpolated": 0.711590542479,
+      "action": "RED",
+      "center_config": {
+        "pop_mult": 2,
+        "pc": 0.8875,
+        "pm": 0.05
+      },
+      "center_config_raw_interpolation": {
+        "pop_mult": 2.456009280335152,
+        "pc": 0.8989002320083788,
+        "pm": 0.0614002320083788
+      },
+      "G_raw_interpolation": 15783.975252439595,
+      "G": 16000,
+      "matrix_seed": 2026172721,
+      "target_id": "T24_90x20"
+    }
+  ],
+  "endpoint_note": "v1.1 supersedes v1.0 before any prospective validation GA outcome. Only success/end-point interpretation was updated because subgroup sizes GREEN=8 and AMBER=12 make >=90% hard pass thresholds discretely require 8/8 and 11/12. Panel, matrices, actions, parameter centers, G, seeds, policies and 0.25-pp safe definition are unchanged."
+}

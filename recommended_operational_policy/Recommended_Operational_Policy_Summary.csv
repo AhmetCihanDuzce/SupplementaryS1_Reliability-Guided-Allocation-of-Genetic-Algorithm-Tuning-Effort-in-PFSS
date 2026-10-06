@@ -1,0 +1,4 @@
+action,historical_reliability_rule,search_region,stage1_R,raw_top_K,final_R,maximum_tuning_runs
+GREEN,s_hat >= 0.90,center + available +/-1 axial neighbors,5,3,10,<=50
+AMBER,0.75 <= s_hat < 0.90,+/-1 Cartesian neighborhood (<=27 configurations),3,8,10,<=137
+RED,s_hat < 0.75,full 125-configuration grid,2,30,10,490

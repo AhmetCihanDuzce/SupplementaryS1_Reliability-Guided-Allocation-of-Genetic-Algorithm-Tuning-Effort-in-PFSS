@@ -1,0 +1,68 @@
+Supplementary S1 — Final Submission QA
+======================================
+
+Package scope
+-------------
+Submission-facing code and reproducibility package aligned with the manuscript's final
+recommended staged operational policy.
+
+Policy separation
+-----------------
+PASS — original conservative prospective validation is retained unchanged for confirmatory inference:
+  GREEN = 0 target-specific tuning
+  AMBER <= 116 tuning runs
+  RED = 1,250 tuning runs
+  24-target total = 6,185 tuning runs
+PASS — final recommended operational policy is explicitly specified as:
+  GREEN <= 50 runs: axial screening R=5, raw top 3 confirmed through R=10
+  AMBER <= 137 runs: local Cartesian screening R=3, raw top 8 confirmed through R=10
+  RED = 490 runs: full-grid screening R=2, raw top 30 confirmed through R=10
+PASS — observed recommended-policy budget across 24 targets = 3,767 runs
+PASS — target-level budget table is reproduced exactly from the documented neighborhood and replication rules
+PASS — reduction versus universal 30,000-run retuning = 87.44%
+PASS — reduction versus conservative 6,185-run prospective schedule = 39.09%
+
+Completed checks
+----------------
+PASS — Python scripts compile successfully.
+PASS — standalone manuscript-critical verification:
+  Historical anchors: 6583/7560 = 87.08%
+  Prospective actions: GREEN=8, AMBER=12, RED=4
+  Original conservative policy within 0.25 pp: 21/24
+  Direct center within 0.25 pp: 21/24
+  Original conservative tuning: 6185/30000; reduction=79.38%
+  Recommended staged tuning: 3767/30000; reduction=87.44%
+  Recommended budget by risk: GREEN=370, AMBER=1437, RED=1960
+PASS — exact prospective matrix verification:
+  SHA-256 matches: 24/24
+  NEH matches: 24/24
+PASS — executable C++17 GA ten-run self-test:
+  2740, 2752, 2741, 2735, 2735, 2735, 2752, 2735, 2746, 2735
+PASS — one-run C++ smoke test:
+  Ta50x5 instance 1, seed 2250101210 -> best_cmax=2740
+PASS — canonical Ta100x20 cross-package reconstruction against S2:
+  595/840 = 70.833333%
+PASS — recommended-policy matched-budget final-validation verifier against S2 evidence:
+  guided tuning budget = 3767
+  reliability-blind tuning budget = 3768
+  raw mean-Cmax results = guided 16/24, blind 5/24, exact ties 3/24
+  +/-0.05% interpretation classes = guided 9/24, blind 1/24, practical ties 14/24
+  mean guided advantage = 0.050265517350%
+  median guided advantage = 0.037247210556%
+
+Submission-facing nomenclature
+------------------------------
+PASS — no TargetXX files use CellXX labels.
+PASS — submission-facing target tables use `target_index`.
+PASS — no internal reviewer/work-package/checkpoint/pilot labels remain.
+PASS — the recommended operational policy is distinguished from the original confirmatory implementation.
+PASS — no old 100x20 "raw workbook not present" statement remains.
+PASS — no alternate 597/840 artifact is distributed as manuscript evidence.
+
+Notes
+-----
+- Parameter combinations are described as configurations.
+- Exact prospective matrices are named Target01...Target24 by size.
+- The original prespecified prospective protocol is retained as historical validation evidence and is not rewritten to mimic the final operational recommendation.
+- The final recommended policy uses the same historical risk thresholds/search-breadth logic with staged replication and finalist confirmation.
+- The full 24-target staged-policy plus matched-budget rerun is computationally expensive; the supplied runner reconstructs it from the exact matrices and documented seed families, while the cross-package verifier independently reconstructs the reported result from S2 raw validation evidence.

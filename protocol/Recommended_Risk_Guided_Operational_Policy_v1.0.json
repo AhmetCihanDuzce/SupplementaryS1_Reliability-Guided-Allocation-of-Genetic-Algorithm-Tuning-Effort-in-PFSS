@@ -1,0 +1,99 @@
+{
+  "name": "Recommended risk-guided staged operational policy",
+  "version": "1.0",
+  "status": "RECOMMENDED_OPERATIONAL_POLICY_VALIDATED_ON_24_TARGET_PANEL",
+  "scope": "Interpolation within n=20-100 and m=5-20 for the documented GA architecture and parameter grid.",
+  "risk_signal": {
+    "source": "interpolated historical within-tolerance transfer reliability",
+    "thresholds": {
+      "GREEN": "s_hat >= 0.90",
+      "AMBER": "0.75 <= s_hat < 0.90",
+      "RED": "s_hat < 0.75"
+    },
+    "note": "Historical evidence determines risk ordering and search breadth; the staged replication schedule is the lower-cost operational refinement evaluated on the 24-target panel."
+  },
+  "parameter_grid": {
+    "pop_mult": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "pc": [
+      0.85,
+      0.8875,
+      0.925,
+      0.9625,
+      1.0
+    ],
+    "pm": [
+      0.025,
+      0.05,
+      0.075,
+      0.1,
+      0.125
+    ]
+  },
+  "actions": {
+    "GREEN": {
+      "search_region": "transferred center plus available +/-1 axial grid neighbors",
+      "stage1_R": 5,
+      "raw_top_K": 3,
+      "confirmation_reps": "6-10",
+      "final_R": 10,
+      "maximum_tuning_runs": 50
+    },
+    "AMBER": {
+      "search_region": "+/-1 Cartesian neighborhood around transferred center, at most 27 configurations",
+      "stage1_R": 3,
+      "raw_top_K": 8,
+      "confirmation_reps": "4-10",
+      "final_R": 10,
+      "maximum_tuning_runs": 137
+    },
+    "RED": {
+      "search_region": "full 125-configuration grid",
+      "stage1_R": 2,
+      "raw_top_K": 30,
+      "confirmation_reps": "3-10",
+      "final_R": 10,
+      "maximum_tuning_runs": 490
+    }
+  },
+  "selection": {
+    "stage1_ranking": "mean Cmax ascending; deterministic tie-break (pop_mult, pc, pm) ascending",
+    "final_selection": "lowest confirmation-only mean Cmax; same deterministic tie-break",
+    "mandatory_center_inclusion": false,
+    "acceptance_gate_against_center": false
+  },
+  "validation": {
+    "guided_total_tuning_runs_24_targets": 3767,
+    "universal_125x10_runs_24_targets": 30000,
+    "reduction_vs_universal_pct": 87.44333333333333,
+    "original_conservative_prospective_runs_24_targets": 6185,
+    "reduction_vs_original_conservative_pct": 39.09458367016976,
+    "reliability_blind_matched_budget_runs_24_targets": 3768,
+    "fresh_validation_reps_per_selected_configuration": 20,
+    "raw_mean_cmax_outcomes": {
+      "guided_better": 16,
+      "blind_better": 5,
+      "exact_tie": 3
+    },
+    "interpretive_practical_band_pct": 0.05,
+    "practical_classes": {
+      "guided": 9,
+      "blind": 1,
+      "tie": 14
+    },
+    "evidence_status": "descriptive matched-budget validation, not a prespecified confirmatory endpoint"
+  },
+  "original_prospective_validation": {
+    "preserved_unchanged": true,
+    "GREEN": "transferred center, 0 target-specific tuning runs",
+    "AMBER": "local neighborhood Stage-1 R=3, raw top 5 extended to R=10, at most 116 runs",
+    "RED": "all 125 configurations at R=10, 1250 runs",
+    "total_tuning_runs_24_targets": 6185,
+    "role": "basis of original confirmatory 21/24 policy-versus-center analysis"
+  }
+}
